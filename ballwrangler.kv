@@ -1,0 +1,67 @@
+<GameScreen>:
+    ball: game_ball
+    
+    FloatLayout:
+        canvas:
+            Color:
+                rgb:(46/255, 49/255, 49/255)
+            Rectangle:
+                size: 700, 500
+                pos: 45, 35
+        
+        FowardButton:
+            id:fwd_btn
+            size_hint:(None,None)
+            pos: 550, 535
+            size: 60, 60
+            on_press:
+                self.switch_screen_to_game()
+                
+        BackwardButton:
+            id:back_btn
+            size_hint:(None,None)
+            pos: 350, 535
+            size: 60, 60
+            on_press:
+                self.switch_screen_to_game()
+            
+        Label:
+            id:score_label
+            text: 'Score: ' 
+            size_hint: (None, None)
+            font_size: 20
+            pos: (0, 510)
+
+        Ball:
+            id: game_ball
+            size_hint: None, None
+            pos: 50, 500
+
+        Label:
+            id:level_label
+            text: 'Level: '
+            size_hint: (None, None)
+            font_size: 20
+            pos: (150, 510)
+
+<Paddle>:
+    canvas:
+        Color:
+            rgb: self.paddle_color
+        RoundedRectangle:
+            radius: [20, 20, 20, 20]
+            pos:self.pos
+            size: self.size
+            
+    
+<Ball>:
+    canvas:
+        Color:
+            rgb: self.hit_color
+            
+        Ellipse:
+            pos:self.pos
+            size: 30, 30
+
+
+    
