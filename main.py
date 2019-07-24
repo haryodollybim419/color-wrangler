@@ -28,6 +28,7 @@ class GameScreen(Screen):
     ball = ObjectProperty(None)
     paddles = ListProperty([])
     first_barrier_loc = ListProperty([(50, 200)])
+    max_x = NumericProperty(0)
    
     
     def remove_paddles(self):
@@ -39,11 +40,13 @@ class GameScreen(Screen):
             self.remove_paddles()
         new_paddles = Paddle()
         new_paddles.update_position()
-        new_paddles.update()
+        new_paddles.move()
         new_paddles.velocity = [-3, 0]
-        new_paddles.change_paddle_color()
+        #new_paddles.change_paddle_color()
         self.add_widget(new_paddles)
-        self.new_paddles = self.paddles + [new_paddles]
+        print(self.paddles)
+        self.paddles = self.paddles + [new_paddles]
+        
         
         
     def animate(self):
@@ -52,10 +55,29 @@ class GameScreen(Screen):
 
     def update(self, dt):
         self.ball.move()
-        if len(self.paddles) == 0:
-            self.add_new_paddles(remove=False)
-        elif self.paddles[0].x < 0:
-            self.remove_paddles()
+        if self.max_x <= 2:
+            self.add_new_paddles(remove=False)                
+            self.max_x += 1
+            #self.new
+        if 710 <= self.ball.pos[0] <= 720:
+            #right
+            self.ball.velocity = [-5.0, 0]
+            
+        elif 40 <= self.ball.pos[0] <= 50:
+            
+            #left
+            self.ball.velocity = [5.0, 0]
+            self.paddles[-1].velocity = [-3, 0]
+            
+        elif 500<= self.ball.pos[1] <= 510:
+            #up
+            self.ball.velocity = [0, -4]
+            
+        elif 30<= self.ball.pos[1] <= 40:
+            #down
+            self.ball.velocity = [0, 4]
+        
+        
             
         
 
@@ -83,8 +105,9 @@ class Paddle(Widget):
     def change_paddle_color(self):
         self.paddle_color = random.choice([(1, 0, 1), (1,0, 0), (0.25, 1, 0)])
 
-    def update(self):
+    def move(self):
         self.pos = Vector(*self.velocity) + self.pos
+        
     
 
 class Ball(Widget):
@@ -95,18 +118,55 @@ class Ball(Widget):
                               random.uniform(0, 1)])
     x_bound = NumericProperty(700)
     y_bound = NumericProperty(500)
+    ball_pos = ListProperty(None)
+    move_back_state = BooleanProperty(None)
+
     
     def move(self):
         self.pos = Vector(*self.velocity) + self.pos
-
-    def ball_keeps_moving(self):
-        self.pos = Vector(4, 0) + self.pos
     
     def bounce_ball(self,angle):
         self.velocity = Vector(2, 0).rotate(45)
 
+
     def on_touch_down(self, touch):
-        bounce = self.bounce_ball
+        #pos_hit 
+        #bottom 35
+        #right 715
+        #left 45
+        #top 505
+        
+        self.ball_pos.append(self.pos[:])
+##        if self.pos[0] == 715:
+##            #right
+##            self.velocity = [-4, 0]
+##            
+##        elif self.pos[0] == 45:
+##            print('pos', self.pos[0])
+##            #left
+##            self.velocity = [4, 0]
+##            
+##        elif self.pos[1] == 505:
+##            #up
+##            self.velocity = [0, -4]
+##            
+##        elif self.pos[1] == 35:
+##            #down
+##            self.velocity = [0, 4]
+        
+            
+        if self.pos[0] <= self.ball_pos[0][0] + 650:
+            if self.pos[1] <= self.ball_pos[0][1] + 10:
+                self.velocity = [1.25, 4]
+            else:
+                self.velocity = [1.25, -4]
+        else:
+            self.move_back_state = True
+            self.velocity = [-4, 0]
+        self.ball_pos[1:] = []
+        
+            
+            
         
 class FowardButton(ButtonBehavior, Image):
     def __init__(self, **kwargs):
@@ -126,7 +186,7 @@ class BallWranglerApp(App):
     def build(self):
         game = GameScreen()
         game.animate()
-        Clock.schedule_interval(game.update, 1.0/100.0)
+        Clock.schedule_interval(game.update, 1.0/60.0)
         return game
 
 if __name__ == "__main__":
