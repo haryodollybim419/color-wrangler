@@ -1,6 +1,7 @@
 <GameScreen>:
     ball: game_ball
-    
+    end_point: end
+    b: game_ball
     FloatLayout:
         canvas:
             Color:
@@ -27,15 +28,22 @@
             
         Label:
             id:score_label
-            text: 'Score: ' 
+            text: 'Score: '+str(root.score)
             size_hint: (None, None)
             font_size: 20
             pos: (0, 510)
 
         Ball:
             id: game_ball
-            size_hint: None, None
             pos: 50, 500
+            size_hint: None, None
+            size: 30, 30
+
+        EndPoint:
+            id: end
+            size_hint: None, None
+            pos: 0, 35
+            
 
         Label:
             id:level_label
@@ -44,24 +52,101 @@
             font_size: 20
             pos: (150, 510)
 
+<EndPoint>:
+    canvas:
+        Color:
+            rgb: (46/255, 49/255, 49/255)
+        Rectangle:
+            pos:self.pos
+            size: 45, 500
+    
+
 <Paddle>:
     canvas:
         Color:
             rgb: self.paddle_color
-        RoundedRectangle:
-            radius: [20, 20, 20, 20]
+        Rectangle:
+            #radius: [20, 20, 20, 20]
             pos:self.pos
             size: self.size
-            
     
 <Ball>:
     canvas:
         Color:
             rgb: self.hit_color
+        Ellipse:
+            pos:self.pos
+            size: self.size
+
+
+<WelcomeScreen>:
+    FloatLayout:
+        canvas:
+            Color:
+                rgb:(46/255, 49/255, 49/255)
+            Rectangle:
+                pos: 150, 400
+                size: 500, 150
+                
+                    
+        Label:
+            id:lew
+            text: 'how to play: Click to avoid barriers!'
+            size_hint: (None, None)
+            pos: (300, 10)
+
+        Label:
+            text: 'Ball wranglers'
+            size_hint: (None, None)
+            font_size: 75
+            pos: (350, 150)
+
+        Button:
+            id: exit_button
+            text:'exit'
+            size_hint:(None, None)
+            size: 50, 50
+            pos: 10, 545
+            background_color: 1, .25, .3, .6
+                
             
+        AnimateBallIntro:
+            id: ball
+            pos: 510, 240
+            
+        
+        AnimateBarriersIntro:
+            id: barrier
+            pos: (0, 0)
+            
+        PlayButtonIntro:
+            id:btn
+            size_hint:(None,None)
+            pos: 350, 250
+            on_press:
+                root.animate(ball)
+                root.animate_barriers(barrier)
+                self.clocked_switch()
+
+<AnimateBallIntro>:
+    canvas:
+        Color:
+            rgb: (1, 0.5, 0.3)
         Ellipse:
             pos:self.pos
             size: 30, 30
+
+<AnimateBarriersIntro>:
+    pos:self.pos
+    
+<PlayButtonIntro>:
+    pos: self.pos
+    
+<FowardButton>:
+    pos:self.pos
+    
+<BackwardButton>:
+    pos:self.pos
 
 
     

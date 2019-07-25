@@ -24,41 +24,77 @@ import sys
 class Color(Widget):
     pass
 
+class WelcomeScreen(Screen):
+    def __init__(self, **kwargs):
+        super(WelcomeScreen, self).__init__(**kwargs)
+        #self.sound = SoundLoader.load('data/drum_roll.flac')
+
+    def animate(self, instance): 
+        Animation.cancel_all(instance) 
+        anim = Animation(pos=(250, 400), t='in_bounce')
+        anim += Animation(pos=(250, 400), t='in_elastic')
+        count_anim_pos = 0
+        for i in range(2):
+            anim += Animation(pos=(250 + i*50, 400))
+            count_anim_pos += (250 + i*50)
+        for j in range(5):
+            anim += Animation(pos=(count_anim_pos, 500+j*30), t='in_elastic')
+        anim.start(instance)
+        #self.sound.play()
+
+    def animate_barriers(self, instance):
+        Animation.cancel_all(instance)
+        anim = Animation(pos=(125, 118))
+        anim.start(instance)
+
+    def update(self, dt):
+        pass
+
+
+
 class GameScreen(Screen):
     ball = ObjectProperty(None)
+    score = NumericProperty(0)
     paddles = ListProperty([])
+    end_point = ObjectProperty(None)
     first_barrier_loc = ListProperty([(50, 200)])
-    max_x = NumericProperty(0)
-   
+    max_per_screen = NumericProperty(5)
+
+    def __init__(self, **kwargs):
+        super(GameScreen, self).__init__(**kwargs)
+        self.bind(size=self.size_callback)
     
-    def remove_paddles(self):
-        self.remove_widget(self.paddles[0])
-        self.paddles = self.paddles[1:]
-        
     def add_new_paddles(self, remove=True):
         if remove:
             self.remove_paddles()
         new_paddles = Paddle()
         new_paddles.update_position()
-        new_paddles.move()
-        new_paddles.velocity = [-3, 0]
-        #new_paddles.change_paddle_color()
+        new_paddles.velocity = [-(random.randrange(3, 10)), 0]
         self.add_widget(new_paddles)
-        print(self.paddles)
         self.paddles = self.paddles + [new_paddles]
-        
-        
-        
-    def animate(self):
-        anim = Animation(pos=self.first_barrier_loc[0])    
-        anim.start(self.ball)
 
+        
+    def size_callback(self, instance, value):
+        for paddle in self.paddles:
+            paddle.height = value[1]
+            paddle.update_position()
+
+    
     def update(self, dt):
         self.ball.move()
-        if self.max_x <= 2:
-            self.add_new_paddles(remove=False)                
-            self.max_x += 1
-            #self.new
+        if len(self.paddles) < self.max_per_screen:
+            self.add_new_paddles(remove=False)
+        for paddle in self.paddles:
+            if self.ball.collide_widget(paddle):
+                self.remove_widget(paddle)
+                self.paddles.remove(paddle)
+                self.score += 1
+            if paddle.x < -20:
+                self.remove_widget(paddle)
+                self.paddles.remove(paddle)
+            if paddle.x >= -20:
+                paddle.move()
+
         if 710 <= self.ball.pos[0] <= 720:
             #right
             self.ball.velocity = [-5.0, 0]
@@ -67,7 +103,6 @@ class GameScreen(Screen):
             
             #left
             self.ball.velocity = [5.0, 0]
-            self.paddles[-1].velocity = [-3, 0]
             
         elif 500<= self.ball.pos[1] <= 510:
             #up
@@ -78,14 +113,19 @@ class GameScreen(Screen):
             self.ball.velocity = [0, 4]
         
         
-            
-        
+class EndPoint(Widget):
+    velocity_x = NumericProperty(0)
+    velocity_y = NumericProperty(0)
+    velocity = ReferenceListProperty(velocity_x, velocity_y)
+    
+    def move(self):
+        self.pos = Vector(*self.velocity) + self.pos
+    
 
 class Paddle(Widget):
-    length = NumericProperty(random.randint(70, 150))
     paddle_color = ListProperty([1,random.uniform(0, 1),
                               random.uniform(0, 1)])
-    gap_size = NumericProperty(50)
+    gap_pos = NumericProperty(50)
     velocity_x = NumericProperty(0)
     velocity_y = NumericProperty(0)
     velocity = ReferenceListProperty(velocity_x, velocity_y)
@@ -94,13 +134,19 @@ class Paddle(Widget):
 
     def __init__(self, **kwargs):
         super(Paddle, self).__init__(**kwargs)
+        self.size = [random.randrange(50, 100), 30]
+        self.pos = [200,
+        random.randrange(35, 435)]
 
     def update_position(self):
         #least (45, 35)
         #highest (645, 435)
+        #650 self.pos.x
         self.size_hint = (None, None)
-        self.size = (random.randrange(50, 100), 30)
-        self.pos = (random.randrange(45, 645), random.randrange(35, 435))
+        self.size = [random.randrange(50, 100), 30]
+        self.pos = [650,
+        random.randrange(35, 435)]
+        
 
     def change_paddle_color(self):
         self.paddle_color = random.choice([(1, 0, 1), (1,0, 0), (0.25, 1, 0)])
@@ -116,18 +162,12 @@ class Ball(Widget):
     velocity = ReferenceListProperty(velocity_x, velocity_y)
     hit_color = ListProperty([1,random.uniform(0, 1),
                               random.uniform(0, 1)])
-    x_bound = NumericProperty(700)
-    y_bound = NumericProperty(500)
     ball_pos = ListProperty(None)
-    move_back_state = BooleanProperty(None)
 
+    
     
     def move(self):
         self.pos = Vector(*self.velocity) + self.pos
-    
-    def bounce_ball(self,angle):
-        self.velocity = Vector(2, 0).rotate(45)
-
 
     def on_touch_down(self, touch):
         #pos_hit 
@@ -137,29 +177,11 @@ class Ball(Widget):
         #top 505
         
         self.ball_pos.append(self.pos[:])
-##        if self.pos[0] == 715:
-##            #right
-##            self.velocity = [-4, 0]
-##            
-##        elif self.pos[0] == 45:
-##            print('pos', self.pos[0])
-##            #left
-##            self.velocity = [4, 0]
-##            
-##        elif self.pos[1] == 505:
-##            #up
-##            self.velocity = [0, -4]
-##            
-##        elif self.pos[1] == 35:
-##            #down
-##            self.velocity = [0, 4]
-        
-            
         if self.pos[0] <= self.ball_pos[0][0] + 650:
             if self.pos[1] <= self.ball_pos[0][1] + 10:
-                self.velocity = [1.25, 4]
+                self.velocity = [2, 6]
             else:
-                self.velocity = [1.25, -4]
+                self.velocity = [2, -6]
         else:
             self.move_back_state = True
             self.velocity = [-4, 0]
@@ -178,16 +200,46 @@ class BackwardButton(ButtonBehavior, Image):
         super(BackwardButton, self).__init__(**kwargs)
         self.source = 'icons/back-icon.png'
 
+    def switch_screen_to_game(self, *args):
+        app = App.get_running_app()
+        app.root.current = "welcome"
+
+class PlayButtonIntro(ButtonBehavior, Image):
+    def __init__(self, **kwargs):
+        super(PlayButtonIntro, self).__init__(**kwargs)
+        self.source = 'icons/play_icon3.png'
+
+    def on_release(self):
+        self.source = 'icons/play_icon4.png'
+
+    def clocked_switch(self):
+        Clock.schedule_once(self.switch_screen_to_game, 9.5)
+
+    def switch_screen_to_game(self, *args):
+        app = App.get_running_app()
+        app.root.current = "game"
+
+class AnimateBallIntro(Widget):
+    pass
+
+class AnimateBarriersIntro(Image):
+    def __init__(self, **kwargs):
+        super(AnimateBarriersIntro, self).__init__(**kwargs)
+        self.source = 'icons/barrier.png'
+
 class BallWranglerApp(App):
     from kivy.config import Config
     Config.set('graphics', 'width', '800')
     Config.set('graphics', 'height', '400')
     
     def build(self):
-        game = GameScreen()
-        game.animate()
+        game = GameScreen(name="game")
+        sm.add_widget(WelcomeScreen(name="welcome"))
         Clock.schedule_interval(game.update, 1.0/60.0)
-        return game
+        sm.add_widget(game)
+        #return game
+        return sm
 
 if __name__ == "__main__":
+    sm = ScreenManager()
     BallWranglerApp().run()
