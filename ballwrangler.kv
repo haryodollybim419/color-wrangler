@@ -1,7 +1,7 @@
 <GameScreen>:
+    id:game
     ball: game_ball
     end_point: end
-    b: game_ball
     FloatLayout:
         canvas:
             Color:
@@ -65,8 +65,8 @@
     canvas:
         Color:
             rgb: self.paddle_color
-        Rectangle:
-            #radius: [20, 20, 20, 20]
+        RoundedRectangle:
+            radius: [20, 20, 20, 20]
             pos:self.pos
             size: self.size
     
@@ -96,7 +96,7 @@
             pos: (300, 10)
 
         Label:
-            text: 'Ball wranglers'
+            text: 'Color wranglers'
             size_hint: (None, None)
             font_size: 75
             pos: (350, 150)

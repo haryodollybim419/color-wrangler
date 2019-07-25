@@ -21,6 +21,11 @@ import random
 
 import sys
 
+
+COLORS = [[1, 0, 0], [1, 0.6445783261576649, 0.22951989613836243], [1, 0.4362706728724095, 0.9169108466177788], [1, 0.7148392088535532, 0.1624104275809597],
+          [1, 0.7158142694194507, 0.06723232369803633], [1, 0.4683517795555211, 0.5130869077160791],
+[1, 0.07205125513409716, 0.9337318469064825], [1, 0.6706308706142102, 0.6057520785878018]]
+
 class Color(Widget):
     pass
 
@@ -58,7 +63,7 @@ class GameScreen(Screen):
     paddles = ListProperty([])
     end_point = ObjectProperty(None)
     first_barrier_loc = ListProperty([(50, 200)])
-    max_per_screen = NumericProperty(5)
+    max_per_screen = NumericProperty(10)
 
     def __init__(self, **kwargs):
         super(GameScreen, self).__init__(**kwargs)
@@ -70,6 +75,7 @@ class GameScreen(Screen):
         new_paddles = Paddle()
         new_paddles.update_position()
         new_paddles.velocity = [-(random.randrange(3, 10)), 0]
+        new_paddles.change_paddle_color()
         self.add_widget(new_paddles)
         self.paddles = self.paddles + [new_paddles]
 
@@ -86,9 +92,14 @@ class GameScreen(Screen):
             self.add_new_paddles(remove=False)
         for paddle in self.paddles:
             if self.ball.collide_widget(paddle):
-                self.remove_widget(paddle)
-                self.paddles.remove(paddle)
-                self.score += 1
+                if paddle.paddle_color == COLORS[0]:
+                    pass
+                else:
+                    if self.ball.hit_color == paddle.paddle_color:
+                        self.remove_widget(paddle)
+                        self.paddles.remove(paddle)
+                        self.score += 1
+            
             if paddle.x < -20:
                 self.remove_widget(paddle)
                 self.paddles.remove(paddle)
@@ -149,7 +160,7 @@ class Paddle(Widget):
         
 
     def change_paddle_color(self):
-        self.paddle_color = random.choice([(1, 0, 1), (1,0, 0), (0.25, 1, 0)])
+        self.paddle_color = random.choice(COLORS)
 
     def move(self):
         self.pos = Vector(*self.velocity) + self.pos
@@ -160,8 +171,7 @@ class Ball(Widget):
     velocity_x = NumericProperty(0)
     velocity_y = NumericProperty(0)
     velocity = ReferenceListProperty(velocity_x, velocity_y)
-    hit_color = ListProperty([1,random.uniform(0, 1),
-                              random.uniform(0, 1)])
+    hit_color = ListProperty(random.choice(COLORS[1:]))
     ball_pos = ListProperty(None)
 
     
@@ -179,9 +189,9 @@ class Ball(Widget):
         self.ball_pos.append(self.pos[:])
         if self.pos[0] <= self.ball_pos[0][0] + 650:
             if self.pos[1] <= self.ball_pos[0][1] + 10:
-                self.velocity = [2, 6]
+                self.velocity = [2, 8]
             else:
-                self.velocity = [2, -6]
+                self.velocity = [2, -8]
         else:
             self.move_back_state = True
             self.velocity = [-4, 0]
@@ -229,16 +239,17 @@ class AnimateBarriersIntro(Image):
 
 class BallWranglerApp(App):
     from kivy.config import Config
-    Config.set('graphics', 'width', '800')
-    Config.set('graphics', 'height', '400')
+    Config.set('graphics', 'width', '900')
+    Config.set('graphics', 'height', '500')
+    Config.write()
     
     def build(self):
+        self.icon = 'icons/barrier.png'
         game = GameScreen(name="game")
         sm.add_widget(WelcomeScreen(name="welcome"))
-        Clock.schedule_interval(game.update, 1.0/60.0)
         sm.add_widget(game)
-        #return game
-        return sm
+        Clock.schedule_interval(game.update, 1.0/60.0)
+        return game
 
 if __name__ == "__main__":
     sm = ScreenManager()
