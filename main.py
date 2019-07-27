@@ -22,9 +22,7 @@ import random
 import sys
 
 
-COLORS = [[1, 0, 0], [1, 0.6445783261576649, 0.22951989613836243], [1, 0.4362706728724095, 0.9169108466177788], [1, 0.7148392088535532, 0.1624104275809597],
-          [1, 0.7158142694194507, 0.06723232369803633], [1, 0.4683517795555211, 0.5130869077160791],
-[1, 0.07205125513409716, 0.9337318469064825], [1, 0.6706308706142102, 0.6057520785878018]]
+COLORS = [[0.85, 0, 0], [0.478754546, 0.256789, 1], [0.257890, 1, 0.6078127654], [0.5678, 0.455657, 0.233546], [153/255, 0, 76/255]]
 
 class Color(Widget):
     pass
@@ -49,11 +47,8 @@ class WelcomeScreen(Screen):
 
     def animate_barriers(self, instance):
         Animation.cancel_all(instance)
-        anim = Animation(pos=(125, 118))
+        anim = Animation(pos=(125, 170))
         anim.start(instance)
-
-    def update(self, dt):
-        pass
 
 
 
@@ -63,7 +58,7 @@ class GameScreen(Screen):
     paddles = ListProperty([])
     end_point = ObjectProperty(None)
     first_barrier_loc = ListProperty([(50, 200)])
-    max_per_screen = NumericProperty(10)
+    max_per_screen = NumericProperty(25)
 
     def __init__(self, **kwargs):
         super(GameScreen, self).__init__(**kwargs)
@@ -74,7 +69,7 @@ class GameScreen(Screen):
             self.remove_paddles()
         new_paddles = Paddle()
         new_paddles.update_position()
-        new_paddles.velocity = [-(random.randrange(3, 10)), 0]
+        new_paddles.velocity = [-(random.randrange(5, 25)), 0]
         new_paddles.change_paddle_color()
         self.add_widget(new_paddles)
         self.paddles = self.paddles + [new_paddles]
@@ -91,20 +86,22 @@ class GameScreen(Screen):
         if len(self.paddles) < self.max_per_screen:
             self.add_new_paddles(remove=False)
         for paddle in self.paddles:
-            if self.ball.collide_widget(paddle):
-                if paddle.paddle_color == COLORS[0]:
-                    pass
-                else:
-                    if self.ball.hit_color == paddle.paddle_color:
-                        self.remove_widget(paddle)
-                        self.paddles.remove(paddle)
-                        self.score += 1
-            
             if paddle.x < -20:
                 self.remove_widget(paddle)
                 self.paddles.remove(paddle)
             if paddle.x >= -20:
                 paddle.move()
+
+        for paddle in self.paddles:
+            if self.ball.collide_widget(paddle):
+                if paddle.paddle_color == COLORS[0]:
+                    self.score -= 1
+                else:
+                    if self.ball.hit_color == paddle.paddle_color:
+                        self.remove_widget(paddle)
+                        self.paddles.remove(paddle)
+                        self.score += 10
+            
 
         if 710 <= self.ball.pos[0] <= 720:
             #right
@@ -172,12 +169,13 @@ class Ball(Widget):
     velocity_y = NumericProperty(0)
     velocity = ReferenceListProperty(velocity_x, velocity_y)
     hit_color = ListProperty(random.choice(COLORS[1:]))
-    ball_pos = ListProperty(None)
+    ball_pos = ListProperty([])
 
     
     
     def move(self):
         self.pos = Vector(*self.velocity) + self.pos
+
 
     def on_touch_down(self, touch):
         #pos_hit 
@@ -196,14 +194,13 @@ class Ball(Widget):
             self.move_back_state = True
             self.velocity = [-4, 0]
         self.ball_pos[1:] = []
+
+       
         
-            
-            
-        
-class FowardButton(ButtonBehavior, Image):
-    def __init__(self, **kwargs):
-        super(FowardButton, self).__init__(**kwargs)
-        self.source = 'icons/forward-icon.png'
+##class FowardButton(ButtonBehavior, Image):
+##    def __init__(self, **kwargs):
+##        super(FowardButton, self).__init__(**kwargs)
+##        self.source = 'icons/forward-icon.png'
 
 class BackwardButton(ButtonBehavior, Image):
     def __init__(self, **kwargs):
@@ -238,18 +235,13 @@ class AnimateBarriersIntro(Image):
         self.source = 'icons/barrier.png'
 
 class BallWranglerApp(App):
-    from kivy.config import Config
-    Config.set('graphics', 'width', '900')
-    Config.set('graphics', 'height', '500')
-    Config.write()
-    
     def build(self):
         self.icon = 'icons/barrier.png'
         game = GameScreen(name="game")
         sm.add_widget(WelcomeScreen(name="welcome"))
         sm.add_widget(game)
         Clock.schedule_interval(game.update, 1.0/60.0)
-        return game
+        return sm
 
 if __name__ == "__main__":
     sm = ScreenManager()

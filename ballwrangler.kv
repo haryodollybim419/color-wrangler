@@ -10,13 +10,13 @@
                 size: 700, 500
                 pos: 45, 35
         
-        FowardButton:
-            id:fwd_btn
-            size_hint:(None,None)
-            pos: 550, 535
-            size: 60, 60
-            on_press:
-                self.switch_screen_to_game()
+##        FowardButton:
+##            id:fwd_btn
+##            size_hint:(None,None)
+##            pos: 550, 535
+##            size: 60, 60
+##            on_press:
+##                self.switch_screen_to_game()
                 
         BackwardButton:
             id:back_btn
@@ -91,7 +91,7 @@
                     
         Label:
             id:lew
-            text: 'how to play: Click to avoid barriers!'
+            text: 'how to play: Click to avoid red barriers!'
             size_hint: (None, None)
             pos: (300, 10)
 
@@ -142,8 +142,8 @@
 <PlayButtonIntro>:
     pos: self.pos
     
-<FowardButton>:
-    pos:self.pos
+##<FowardButton>:
+##    pos:self.pos
     
 <BackwardButton>:
     pos:self.pos
