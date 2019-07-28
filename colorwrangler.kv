@@ -87,8 +87,8 @@
                 rgb:(46/255, 49/255, 49/255)
             Rectangle:
                 pos: 150, 400
-                size: 500, 150  
-                    
+                size: 500, 150
+                
         Label:
             id:lew
             text: 'how to play: Click to avoid red barriers!'
@@ -111,25 +111,12 @@
             on_press:
                 root.exit_game()
                 
-        AnimateBallIntro:
-            id: ball
-            pos: 535, 240
-            
         PlayButtonIntro:
-            id:btn
+            id:play
             size_hint:(None,None)
             pos: 350, 250
             on_press:
-                root.animate(ball)
                 self.clocked_switch()
-
-<AnimateBallIntro>:
-    canvas:
-        Color:
-            rgb: (1, 0.5, 0.3)
-        Ellipse:
-            pos:self.pos
-            size: 30, 30
 
 <Popup@Popup>:
     auto_dismiss: True

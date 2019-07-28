@@ -31,46 +31,60 @@ Window.size = (750, 600)
 
 
 COLORS = [[0.85, 0, 0], [0.478754546, 0.256789, 1], [0.257890, 1, 0.6078127654], [0.5678, 0.455657, 0.233546], [153/255, 0, 76/255]]
-SCORE = 0
-
 class Color(Widget):
     pass
 
 class Popup(Widget):
-    score = NumericProperty(0)
+    #high_score = NumericProperty(0)
+    def __init__(self, **kwargs):
+        super(Popup, self).__init__(**kwargs)
+        self.high_score = 0
+        Clock.schedule_once(self.dismiss_popup, 2)
+
+    def dismiss_popup(self, dt):
+        self.dismiss()
 
 class WelcomeScreen(Screen):
+    play_button = ObjectProperty(None)
     def __init__(self, **kwargs):
         super(WelcomeScreen, self).__init__(**kwargs)
-        #self.sound = SoundLoader.load('data/drum_roll.flac')
+        self.sound = SoundLoader.load('data/Cyberpunk Moonlight Sonata.wav')
+
+    def check_sound(self, dt = None):
+        self.sound.play()
+
+    def play_game_sound(self):
+        Clock.schedule_interval(self.check_sound, 1)
 
     def exit_game(self):
         App.get_running_app().stop()
 
-    def animate(self, instance): 
-        Animation.cancel_all(instance) 
-        anim = Animation(pos=(250, 400), t='in_bounce')
-        anim += Animation(pos=(250, 400), t='in_elastic')
-        count_anim_pos = 0
-        for i in range(2):
-            anim += Animation(pos=(250 + i*50, 400))
-            count_anim_pos += (250 + i*50)
-        for j in range(5):
-            anim += Animation(pos=(count_anim_pos, 500+j*30), t='in_elastic')
-        anim.start(instance)
-        #self.sound.play()
+
 
 class GameScreen(Screen):
     ball = ObjectProperty(None)
     score = NumericProperty(0)
     paddles = ListProperty([])
     end_point = ObjectProperty(None)
-    first_barrier_loc = ListProperty([(50, 200)])
+    first_barrier_loc = ListProperty([(50, 100)])
     max_per_screen = NumericProperty(25)
+    on_pause = BooleanProperty(False)
+    score_data = ListProperty([])
+    end_score = NumericProperty(0)
 
     def __init__(self, **kwargs):
         super(GameScreen, self).__init__(**kwargs)
+        self.sound = SoundLoader.load('data/Cyberpunk Moonlight Sonata.wav')
+        self.hit_paddle_sound = SoundLoader.load('')
+        self.hit_wrong_paddle_sound = SoundLoader.load('')
         self.bind(size=self.size_callback)
+
+    def check_sound(self, dt = None):
+        self.sound.play()
+
+    def play_game_sound(self):
+        Clock.schedule_interval(self.check_sound, 0.5)
+        
     
     def add_new_paddles(self, remove=True):
         if remove:
@@ -88,8 +102,32 @@ class GameScreen(Screen):
             paddle.height = value[1]
             paddle.update_position()
 
+    def on_touch_down(self, touch):
+        #pos_hit 
+        #bottom 35
+        #right 715
+        #left 45
+        #top 505
+        if 365 <= touch.pos[0] <= 395  and 545 <= touch.pos[1] <= 588:
+            app = App.get_running_app()
+            app.root.current = "welcome"
+        if touch.pos[1] < 540:
+            if self.on_pause == False:
+                Clock.schedule_interval(self.update, 1.0/60.0)
+            self.ball.ball_pos.append(self.pos[:])
+            if self.ball.pos[0] <= self.ball.ball_pos[0][0] + 650:
+                if self.ball.pos[1] <= self.ball.ball_pos[0][1] + 10:
+                    self.ball.velocity = [2, 8]
+                else:
+                    self.ball.velocity = [2, -8]
+            else:
+                self.ball.move_back_state = True
+                self.ball.velocity = [-4, 0]
+            self.ball.ball_pos[1:] = []
+
     
     def update(self, dt):
+        self.on_pause = True
         self.ball.move()
         if len(self.paddles) < self.max_per_screen:
             self.add_new_paddles(remove=False)
@@ -102,15 +140,20 @@ class GameScreen(Screen):
 
         for paddle in self.paddles:
             if self.ball.collide_widget(paddle):
-                if self.score == 0:
+                if self.score == -100:
                    Factory.Popup().open()
-                if paddle.paddle_color == COLORS[0] and not(self.score < -30):
-                    self.score -= 1
+                if paddle.paddle_color == COLORS[0] and not(self.score < -100):
+                    self.score -= 5
                 else:
-                    if self.ball.hit_color == paddle.paddle_color and not(self.score < -30):
+                    if self.ball.hit_color == paddle.paddle_color and not(self.score < -100):
                         self.remove_widget(paddle)
                         self.paddles.remove(paddle)
                         self.score += 10
+                        if self.score > 0:
+                            self.score_data.append(self.score)
+                            self.score_data[:len(self.score_data)-1] = []
+                        if len(self.score_data) > 0:
+                           self.end_score =  max(self.end_score, self.score_data[-1])
             
 
         if 710 <= self.ball.pos[0] <= 720:
@@ -129,6 +172,7 @@ class GameScreen(Screen):
         elif 30<= self.ball.pos[1] <= 40:
             #down
             self.ball.velocity = [0, 4]
+
         
         
 class EndPoint(Widget):
@@ -180,30 +224,13 @@ class Ball(Widget):
     velocity = ReferenceListProperty(velocity_x, velocity_y)
     hit_color = ListProperty(random.choice(COLORS[1:]))
     ball_pos = ListProperty([])
+    
 
     
     
     def move(self):
         self.pos = Vector(*self.velocity) + self.pos
 
-
-    def on_touch_down(self, touch):
-        #pos_hit 
-        #bottom 35
-        #right 715
-        #left 45
-        #top 505
-        
-        self.ball_pos.append(self.pos[:])
-        if self.pos[0] <= self.ball_pos[0][0] + 650:
-            if self.pos[1] <= self.ball_pos[0][1] + 10:
-                self.velocity = [2, 8]
-            else:
-                self.velocity = [2, -8]
-        else:
-            self.move_back_state = True
-            self.velocity = [-4, 0]
-        self.ball_pos[1:] = []
 
        
         
@@ -230,15 +257,14 @@ class PlayButtonIntro(ButtonBehavior, Image):
         self.source = 'icons/play_icon4.png'
 
     def clocked_switch(self):
-        Clock.schedule_once(self.switch_screen_to_game, 9.5)
+        Clock.schedule_once(self.switch_screen_to_game, 1.5)
 
     def switch_screen_to_game(self, *args):
         app = App.get_running_app()
+        app.root.current_screen.play_game_sound()
         app.root.current = "game"
-
-class AnimateBallIntro(Widget):
-    pass
-
+        app.root.current_screen.score = 0
+        
 
 
 class ColorWranglerApp(App):
@@ -248,7 +274,6 @@ class ColorWranglerApp(App):
         game = GameScreen(name="game")
         sm.add_widget(WelcomeScreen(name="welcome"))
         sm.add_widget(game)
-        Clock.schedule_interval(game.update, 1.0/60.0)
         return sm
 
 if __name__ == "__main__":
