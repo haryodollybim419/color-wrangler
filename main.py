@@ -234,7 +234,7 @@ class AnimateBarriersIntro(Image):
         super(AnimateBarriersIntro, self).__init__(**kwargs)
         self.source = 'icons/barrier.png'
 
-class BallWranglerApp(App):
+class ColorWranglerApp(App):
     def build(self):
         self.icon = 'icons/barrier.png'
         game = GameScreen(name="game")
@@ -245,4 +245,4 @@ class BallWranglerApp(App):
 
 if __name__ == "__main__":
     sm = ScreenManager()
-    BallWranglerApp().run()
+    ColorWranglerApp().run()
