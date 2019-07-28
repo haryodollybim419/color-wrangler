@@ -21,6 +21,12 @@ import random
 
 import sys
 
+##from kivy.config import Config
+##Config.set('graphics', 'width', '900')
+##Config.set('graphics', 'height', '700')
+##Config.write()
+Window.size = (750, 600)
+
 
 COLORS = [[0.85, 0, 0], [0.478754546, 0.256789, 1], [0.257890, 1, 0.6078127654], [0.5678, 0.455657, 0.233546], [153/255, 0, 76/255]]
 
@@ -31,6 +37,9 @@ class WelcomeScreen(Screen):
     def __init__(self, **kwargs):
         super(WelcomeScreen, self).__init__(**kwargs)
         #self.sound = SoundLoader.load('data/drum_roll.flac')
+
+    def exit_game(self):
+        App.get_running_app().stop()
 
     def animate(self, instance): 
         Animation.cancel_all(instance) 
@@ -44,13 +53,6 @@ class WelcomeScreen(Screen):
             anim += Animation(pos=(count_anim_pos, 500+j*30), t='in_elastic')
         anim.start(instance)
         #self.sound.play()
-
-    def animate_barriers(self, instance):
-        Animation.cancel_all(instance)
-        anim = Animation(pos=(125, 170))
-        anim.start(instance)
-
-
 
 class GameScreen(Screen):
     ball = ObjectProperty(None)
@@ -229,12 +231,10 @@ class PlayButtonIntro(ButtonBehavior, Image):
 class AnimateBallIntro(Widget):
     pass
 
-class AnimateBarriersIntro(Image):
-    def __init__(self, **kwargs):
-        super(AnimateBarriersIntro, self).__init__(**kwargs)
-        self.source = 'icons/barrier.png'
+
 
 class ColorWranglerApp(App):
+    
     def build(self):
         self.icon = 'icons/barrier.png'
         game = GameScreen(name="game")

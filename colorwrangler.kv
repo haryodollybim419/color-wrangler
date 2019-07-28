@@ -108,16 +108,13 @@
             size: 50, 50
             pos: 10, 545
             background_color: 1, .25, .3, .6
+            on_press:
+                root.exit_game()
                 
             
         AnimateBallIntro:
             id: ball
             pos: 510, 240
-            
-        
-        AnimateBarriersIntro:
-            id: barrier
-            pos: (0, 0)
             
         PlayButtonIntro:
             id:btn
@@ -125,7 +122,6 @@
             pos: 350, 250
             on_press:
                 root.animate(ball)
-                root.animate_barriers(barrier)
                 self.clocked_switch()
 
 <AnimateBallIntro>:
@@ -136,8 +132,6 @@
             pos:self.pos
             size: 30, 30
 
-<AnimateBarriersIntro>:
-    pos:self.pos
     
 <PlayButtonIntro>:
     pos: self.pos
