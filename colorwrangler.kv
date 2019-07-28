@@ -9,7 +9,7 @@
             Rectangle:
                 size: 700, 500
                 pos: 45, 35
-        
+                
 ##        FowardButton:
 ##            id:fwd_btn
 ##            size_hint:(None,None)
@@ -32,6 +32,7 @@
             size_hint: (None, None)
             font_size: 20
             pos: (0, 510)
+            
 
         Ball:
             id: game_ball
@@ -86,8 +87,7 @@
                 rgb:(46/255, 49/255, 49/255)
             Rectangle:
                 pos: 150, 400
-                size: 500, 150
-                
+                size: 500, 150  
                     
         Label:
             id:lew
@@ -111,10 +111,9 @@
             on_press:
                 root.exit_game()
                 
-            
         AnimateBallIntro:
             id: ball
-            pos: 510, 240
+            pos: 535, 240
             
         PlayButtonIntro:
             id:btn
@@ -131,6 +130,17 @@
         Ellipse:
             pos:self.pos
             size: 30, 30
+
+<Popup@Popup>:
+    auto_dismiss: True
+    title: 'high score: '
+    size_hint: None, None
+    size: 400, 400
+    pos: 200, 200
+    Label:
+        text: 'Game over'
+    
+        
 
     
 <PlayButtonIntro>:

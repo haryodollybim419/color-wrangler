@@ -13,12 +13,14 @@ from kivy.core.window import Window
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.core.audio import SoundLoader
 from kivy.vector import Vector
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
 Window.clearcolor = (64/255.0, 64/255.0, 64/255.0, 0)
 import math
 
 from typing import Optional, List
 import random
-
+from kivy.factory import Factory
 import sys
 
 ##from kivy.config import Config
@@ -29,9 +31,13 @@ Window.size = (750, 600)
 
 
 COLORS = [[0.85, 0, 0], [0.478754546, 0.256789, 1], [0.257890, 1, 0.6078127654], [0.5678, 0.455657, 0.233546], [153/255, 0, 76/255]]
+SCORE = 0
 
 class Color(Widget):
     pass
+
+class Popup(Widget):
+    score = NumericProperty(0)
 
 class WelcomeScreen(Screen):
     def __init__(self, **kwargs):
@@ -96,10 +102,12 @@ class GameScreen(Screen):
 
         for paddle in self.paddles:
             if self.ball.collide_widget(paddle):
-                if paddle.paddle_color == COLORS[0]:
+                if self.score == 0:
+                   Factory.Popup().open()
+                if paddle.paddle_color == COLORS[0] and not(self.score < -30):
                     self.score -= 1
                 else:
-                    if self.ball.hit_color == paddle.paddle_color:
+                    if self.ball.hit_color == paddle.paddle_color and not(self.score < -30):
                         self.remove_widget(paddle)
                         self.paddles.remove(paddle)
                         self.score += 10
