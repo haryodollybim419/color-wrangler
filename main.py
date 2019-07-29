@@ -42,13 +42,45 @@ class Color(Widget):
 class Score(Widget):
     pass
 
+class AnimateBallIntro(Widget):
+    pass
+
+class AnimateBarriersIntro(Image):
+    def __init__(self, **kwargs):
+        super(AnimateBarriersIntro, self).__init__(**kwargs)
+        self.source = 'icons/barrier.png'
+
+        
+
 class WelcomeScreen(Screen):
     play_button = ObjectProperty(None)
+    paddles = ListProperty([])
+    max_per_screen = NumericProperty(10)
     def __init__(self, **kwargs):
         super(WelcomeScreen, self).__init__(**kwargs)
 
     def exit_game(self):
         App.get_running_app().stop()
+
+    def animate(self, instance): 
+        Animation.cancel_all(instance) 
+        anim = Animation(pos=(250, 400), t='in_bounce')
+        anim += Animation(pos=(250, 400), t='in_elastic')
+        count_anim_pos = 0
+        for i in range(2):
+            anim += Animation(pos=(250 + i*50, 400))
+            count_anim_pos += (250 + i*50)
+        for j in range(5):
+            anim += Animation(pos=(count_anim_pos, 500+j*30), t='in_elastic')
+        anim.start(instance)
+
+    def animate_barriers(self, instance):
+        Animation.cancel_all(instance)
+        anim = Animation(pos=(125, 118))
+        anim.start(instance)
+        
+
+        
 
 
 
@@ -153,9 +185,9 @@ class GameScreen(Screen):
                     self.hit_wrong_paddle_sound.play()
                 else:
                     if self.ball.hit_color == paddle.paddle_color and not(self.score < -500):
+                        self.hit_paddle_sound.play()
                         self.remove_widget(paddle)
                         self.paddles.remove(paddle)
-                        self.hit_paddle_sound.play()
                         self.score += 50
                         if self.score > 0:
                             self.score_data.append(self.score)
@@ -261,7 +293,7 @@ class PlayButtonIntro(ButtonBehavior, Image):
         self.source = 'icons/play_icon4.png'
 
     def clocked_switch(self):
-        Clock.schedule_once(self.switch_screen_to_game, 1.5)
+        Clock.schedule_once(self.switch_screen_to_game, 3)
 
     def switch_screen_to_game(self, *args):
         app = App.get_running_app()
