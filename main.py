@@ -179,7 +179,7 @@ class GameScreen(Screen):
         for paddle in self.paddles:
             if self.ball.collide_widget(paddle):
                 if self.score == -500:
-                   pass
+                    self.add_widget(Score())
                 if paddle.paddle_color == COLORS[0] and not(self.score < -500):
                     self.score -= 15
                     self.hit_wrong_paddle_sound.play()
@@ -306,7 +306,7 @@ class PlayButtonIntro(ButtonBehavior, Image):
 class ColorWranglerApp(App):
     
     def build(self):
-        self.icon = 'icons/barrier.png'
+        self.icon = 'icons/3.png'
         game = GameScreen(name="game")
         sm.add_widget(WelcomeScreen(name="welcome"))
         sm.add_widget(game)
