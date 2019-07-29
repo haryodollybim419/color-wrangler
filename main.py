@@ -31,30 +31,21 @@ Window.size = (750, 600)
 
 
 COLORS = [[0.85, 0, 0], [0.478754546, 0.256789, 1], [0.257890, 1, 0.6078127654], [0.5678, 0.455657, 0.233546], [153/255, 0, 76/255]]
+
+HIGH_SCORE = 0
+        
+        
+        
 class Color(Widget):
     pass
 
-class Popup(Widget):
-    #high_score = NumericProperty(0)
-    def __init__(self, **kwargs):
-        super(Popup, self).__init__(**kwargs)
-        self.high_score = 0
-        Clock.schedule_once(self.dismiss_popup, 2)
-
-    def dismiss_popup(self, dt):
-        self.dismiss()
+class Score(Widget):
+    pass
 
 class WelcomeScreen(Screen):
     play_button = ObjectProperty(None)
     def __init__(self, **kwargs):
         super(WelcomeScreen, self).__init__(**kwargs)
-        self.sound = SoundLoader.load('data/Cyberpunk Moonlight Sonata.wav')
-
-    def check_sound(self, dt = None):
-        self.sound.play()
-
-    def play_game_sound(self):
-        Clock.schedule_interval(self.check_sound, 1)
 
     def exit_game(self):
         App.get_running_app().stop()
@@ -67,31 +58,46 @@ class GameScreen(Screen):
     paddles = ListProperty([])
     end_point = ObjectProperty(None)
     first_barrier_loc = ListProperty([(50, 100)])
-    max_per_screen = NumericProperty(25)
+    max_per_screen = NumericProperty(15)
     on_pause = BooleanProperty(False)
     score_data = ListProperty([])
     end_score = NumericProperty(0)
+    high_score = NumericProperty(0)
+    score_label = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(GameScreen, self).__init__(**kwargs)
         self.sound = SoundLoader.load('data/Cyberpunk Moonlight Sonata.wav')
-        self.hit_paddle_sound = SoundLoader.load('')
-        self.hit_wrong_paddle_sound = SoundLoader.load('')
+        self.hit_paddle_sound = SoundLoader.load('data/hit_paddle.wav')
+        self.hit_wrong_paddle_sound = SoundLoader.load('data/hit_red_paddle.wav')
         self.bind(size=self.size_callback)
+        self.get_high_score()
+        HIGH_SCORE = self.high_score
 
     def check_sound(self, dt = None):
         self.sound.play()
 
     def play_game_sound(self):
-        Clock.schedule_interval(self.check_sound, 0.5)
-        
+        Clock.schedule_interval(self.check_sound, 1.0)
+
+    def get_high_score(self):
+        with open("data\score.txt", "r") as file:
+            data = file.read()
+            self.high_score = int(self.high_score)
+        file.close()
+
+    def write_high_score(self, score):
+        open("data\score.txt", 'w').close()
+        with open("data\score.txt", "w") as file:
+            data = file.write(str(score))
+        file.close()
     
     def add_new_paddles(self, remove=True):
         if remove:
             self.remove_paddles()
         new_paddles = Paddle()
         new_paddles.update_position()
-        new_paddles.velocity = [-(random.randrange(5, 25)), 0]
+        new_paddles.velocity = [-(random.randrange(5, 20)), 0]
         new_paddles.change_paddle_color()
         self.add_widget(new_paddles)
         self.paddles = self.paddles + [new_paddles]
@@ -140,22 +146,28 @@ class GameScreen(Screen):
 
         for paddle in self.paddles:
             if self.ball.collide_widget(paddle):
-                if self.score == -100:
-                   Factory.Popup().open()
-                if paddle.paddle_color == COLORS[0] and not(self.score < -100):
-                    self.score -= 5
+                if self.score == -500:
+                   pass
+                if paddle.paddle_color == COLORS[0] and not(self.score < -500):
+                    self.score -= 15
+                    self.hit_wrong_paddle_sound.play()
                 else:
-                    if self.ball.hit_color == paddle.paddle_color and not(self.score < -100):
+                    if self.ball.hit_color == paddle.paddle_color and not(self.score < -500):
                         self.remove_widget(paddle)
                         self.paddles.remove(paddle)
-                        self.score += 10
+                        self.hit_paddle_sound.play()
+                        self.score += 50
                         if self.score > 0:
                             self.score_data.append(self.score)
                             self.score_data[:len(self.score_data)-1] = []
                         if len(self.score_data) > 0:
                            self.end_score =  max(self.end_score, self.score_data[-1])
-            
-
+                        
+        if self.high_score < self.end_score:
+            HIGH_SCORE = self.end_score
+            self.write_high_score(self.end_score)
+                
+                
         if 710 <= self.ball.pos[0] <= 720:
             #right
             self.ball.velocity = [-5.0, 0]
@@ -173,7 +185,6 @@ class GameScreen(Screen):
             #down
             self.ball.velocity = [0, 4]
 
-        
         
 class EndPoint(Widget):
     velocity_x = NumericProperty(0)
@@ -215,8 +226,6 @@ class Paddle(Widget):
 
     def move(self):
         self.pos = Vector(*self.velocity) + self.pos
-        
-    
 
 class Ball(Widget):
     velocity_x = NumericProperty(0)
@@ -225,13 +234,8 @@ class Ball(Widget):
     hit_color = ListProperty(random.choice(COLORS[1:]))
     ball_pos = ListProperty([])
     
-
-    
-    
     def move(self):
         self.pos = Vector(*self.velocity) + self.pos
-
-
        
         
 ##class FowardButton(ButtonBehavior, Image):
@@ -261,8 +265,8 @@ class PlayButtonIntro(ButtonBehavior, Image):
 
     def switch_screen_to_game(self, *args):
         app = App.get_running_app()
-        app.root.current_screen.play_game_sound()
         app.root.current = "game"
+        app.root.current_screen.play_game_sound()
         app.root.current_screen.score = 0
         
 
