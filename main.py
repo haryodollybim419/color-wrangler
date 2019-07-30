@@ -317,6 +317,7 @@ class PlayButtonIntro(ButtonBehavior, Image):
         app.root.current = "game"
         app.root.current_screen.play_game_sound()
         app.root.current_screen.score_obj.is_open = False
+        app.root.current_screen.score_obj.score = 0
         app.root.current_screen.ball.change_ball_color()
         app.root.current_screen.score = 0
         
