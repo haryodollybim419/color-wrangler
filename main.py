@@ -27,20 +27,22 @@ import sys
 ##Config.set('graphics', 'width', '900')
 ##Config.set('graphics', 'height', '700')
 ##Config.write()
+
 Window.size = (750, 600)
 
 
 COLORS = [[0.85, 0, 0], [0.478754546, 0.256789, 1], [0.257890, 1, 0.6078127654], [0.5678, 0.455657, 0.233546], [153/255, 0, 76/255]]
-
-HIGH_SCORE = 0
-        
         
         
 class Color(Widget):
     pass
 
-class Score(Widget):
-    pass
+class ScorePopup(Popup):
+    score = NumericProperty(0)
+    high_score = NumericProperty(0)
+    is_open = BooleanProperty(False)
+    
+
 
 class AnimateBallIntro(Widget):
     pass
@@ -54,8 +56,6 @@ class AnimateBarriersIntro(Image):
 
 class WelcomeScreen(Screen):
     play_button = ObjectProperty(None)
-    paddles = ListProperty([])
-    max_per_screen = NumericProperty(10)
     def __init__(self, **kwargs):
         super(WelcomeScreen, self).__init__(**kwargs)
 
@@ -95,7 +95,7 @@ class GameScreen(Screen):
     score_data = ListProperty([])
     end_score = NumericProperty(0)
     high_score = NumericProperty(0)
-    score_label = ObjectProperty(None)
+    score_obj = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(GameScreen, self).__init__(**kwargs)
@@ -104,10 +104,15 @@ class GameScreen(Screen):
         self.hit_wrong_paddle_sound = SoundLoader.load('data/hit_red_paddle.wav')
         self.bind(size=self.size_callback)
         self.get_high_score()
-        HIGH_SCORE = self.high_score
+        
 
     def check_sound(self, dt = None):
         self.sound.play()
+
+    def open_score_popup(self):
+        self.score_obj.open()
+
+    
 
     def play_game_sound(self):
         Clock.schedule_interval(self.check_sound, 1.0)
@@ -115,7 +120,8 @@ class GameScreen(Screen):
     def get_high_score(self):
         with open("data\score.txt", "r") as file:
             data = file.read()
-            self.high_score = int(self.high_score)
+            self.high_score = int(data)
+            self.score_obj = ScorePopup()
         file.close()
 
     def write_high_score(self, score):
@@ -178,8 +184,10 @@ class GameScreen(Screen):
 
         for paddle in self.paddles:
             if self.ball.collide_widget(paddle):
-                if self.score == -500:
-                    self.add_widget(Score())
+                if self.score <= -500:
+                    if self.score_obj.is_open == False:
+                        self.open_score_popup()
+                        self.score_obj.is_open = True
                 if paddle.paddle_color == COLORS[0] and not(self.score < -500):
                     self.score -= 15
                     self.hit_wrong_paddle_sound.play()
@@ -191,13 +199,18 @@ class GameScreen(Screen):
                         self.score += 50
                         if self.score > 0:
                             self.score_data.append(self.score)
-                            self.score_data[:len(self.score_data)-1] = []
+                            if max(self.score_data) > 1:
+                                self.score_data = [max(self.score_data)]
                         if len(self.score_data) > 0:
                            self.end_score =  max(self.end_score, self.score_data[-1])
+                           self.score_obj.score = self.end_score
                         
         if self.high_score < self.end_score:
-            HIGH_SCORE = self.end_score
             self.write_high_score(self.end_score)
+            self.score_obj.high_score = self.end_score
+        else:
+            self.score_obj.high_score = self.high_score
+            
                 
                 
         if 710 <= self.ball.pos[0] <= 720:
@@ -280,9 +293,10 @@ class BackwardButton(ButtonBehavior, Image):
         super(BackwardButton, self).__init__(**kwargs)
         self.source = 'icons/back-icon.png'
 
-    def switch_screen_to_game(self, *args):
+    def switch_screen_to_welcome(self, *args):
         app = App.get_running_app()
         app.root.current = "welcome"
+
 
 class PlayButtonIntro(ButtonBehavior, Image):
     def __init__(self, **kwargs):
@@ -299,6 +313,7 @@ class PlayButtonIntro(ButtonBehavior, Image):
         app = App.get_running_app()
         app.root.current = "game"
         app.root.current_screen.play_game_sound()
+        app.root.current_screen.score_obj.is_open = False
         app.root.current_screen.score = 0
         
 
@@ -306,7 +321,7 @@ class PlayButtonIntro(ButtonBehavior, Image):
 class ColorWranglerApp(App):
     
     def build(self):
-        self.icon = 'icons/3.png'
+        self.icon = 'icons/paintball.png'
         game = GameScreen(name="game")
         sm.add_widget(WelcomeScreen(name="welcome"))
         sm.add_widget(game)

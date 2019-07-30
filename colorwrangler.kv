@@ -151,6 +151,25 @@
     
 <PlayButtonIntro>:
     pos: self.pos
+
+<ScorePopup>:
+    title: 'High Score: ' + str(self.high_score)
+    auto_dismiss: False
+    background_color: [1, 0.4, 0.6, 0.67]
+    size_hint: None, None
+    size: 400, 400
+    FloatLayout:
+        Label:
+            text: 'Score: ' + str(root.score)
+            pos: 170, 100
+        BackwardButton:
+            size_hint:(None,None)
+            pos: 300, 125
+            size: 60, 60
+            on_press:
+                root.dismiss()
+                self.switch_screen_to_welcome()
+    
     
 ##<FowardButton>:
 ##    pos:self.pos
