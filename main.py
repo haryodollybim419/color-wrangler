@@ -281,6 +281,9 @@ class Ball(Widget):
     
     def move(self):
         self.pos = Vector(*self.velocity) + self.pos
+
+    def change_ball_color(self):
+        self.hit_color = random.choice(COLORS[1:])
        
         
 ##class FowardButton(ButtonBehavior, Image):
@@ -314,6 +317,7 @@ class PlayButtonIntro(ButtonBehavior, Image):
         app.root.current = "game"
         app.root.current_screen.play_game_sound()
         app.root.current_screen.score_obj.is_open = False
+        app.root.current_screen.ball.change_ball_color()
         app.root.current_screen.score = 0
         
 
