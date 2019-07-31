@@ -118,15 +118,15 @@ class GameScreen(Screen):
         Clock.schedule_interval(self.check_sound, 1.0)
 
     def get_high_score(self):
-        with open("data\score.txt", "r") as file:
+        with open("data/score.txt", "r") as file:
             data = file.read()
             self.high_score = int(data)
             self.score_obj = ScorePopup()
         file.close()
 
     def write_high_score(self, score):
-        open("data\score.txt", 'w').close()
-        with open("data\score.txt", "w") as file:
+        open("data/score.txt", 'w').close()
+        with open("data/score.txt", "w") as file:
             data = file.write(str(score))
         file.close()
     
