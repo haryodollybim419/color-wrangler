@@ -36,5 +36,10 @@ Then run:
  <img width="400" height="400" src="https://raw.githubusercontent.com/haryodollybim419/kivy-game-2.0/master/game_images/game_over.PNG">
 </p>
 
+Make sure you hit the paddle with same color as the ball to get more points. 
+
+
+##Good Luck and don't forget to #Wrangle!!!
+
 
 
