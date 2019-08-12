@@ -39,7 +39,7 @@ Then run:
 Make sure you hit the paddle with same color as the ball to get more points. 
 
 
-## Good Luck and don't forget to # Wrangle!!!
+## Good Luck and don't forget to <bold>Wrangle!!!</bold>
 
 
 
