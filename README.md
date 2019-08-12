@@ -15,6 +15,5 @@ python -m pip install kivy_deps.angle==0.1.9
 python -m pip install kivy==1.11.1
 
 Then run:
- cd sql_app
  
  python main.py
