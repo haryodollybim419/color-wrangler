@@ -28,7 +28,7 @@ source.include_exts = py,png,jpg,kv,atlas
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.1
+version = 1.0
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]
@@ -85,7 +85,7 @@ fullscreen = 0
 #android.presplash_color = #FFFFFF
 
 # (list) Permissions
-#android.permissions = INTERNET
+android.permissions = INTERNET,ACCESS_WIFI_STATE,ACESS_NETWORK_STATE
 
 # (int) Target Android API, should be as high as possible.
 #android.api = 27
@@ -141,7 +141,7 @@ fullscreen = 0
 # their classes. Don't add jars that you do not need, since extra jars can slow
 # down the build process. Allows wildcards matching, for example:
 # OUYA-ODK/libs/*.jar
-#android.add_jars = foo.jar,bar.jar,path/to/more/*.jar
+android.add_jars = %(source.dir)s/libs/*.jar
 
 # (list) List of Java files to add to the android project (can be java or a
 # directory containing the files)

@@ -15,18 +15,23 @@ from kivy.core.audio import SoundLoader
 from kivy.vector import Vector
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
+from kivy.utils import platform
 Window.clearcolor = (64/255.0, 64/255.0, 64/255.0, 0)
-import math
 
 from typing import Optional, List
 import random
-from kivy.factory import Factory
+from kivy.utils import platform
 import sys
 
-##from kivy.config import Config
-##Config.set('graphics', 'width', '900')
-##Config.set('graphics', 'height', '700')
-##Config.write()
+#for ads, uncomment the code with ("*")
+#("*") from jnius import autoclass
+
+#("*")
+##if platform=="android":
+##    PythonActivity=autoclass("org.renpy.android.PythonActivity")
+##    AdBuddiz=autoclass("com.purplebrain.adbuddiz.sdk.AdBuddiz")
+
+
 
 Window.size = (750, 600)
 
@@ -96,6 +101,7 @@ class GameScreen(Screen):
     end_score = NumericProperty(0)
     high_score = NumericProperty(0)
     score_obj = ObjectProperty(None)
+    #ads_on_play = BooleanProperty(False)
 
     def __init__(self, **kwargs):
         super(GameScreen, self).__init__(**kwargs)
@@ -104,13 +110,25 @@ class GameScreen(Screen):
         self.hit_wrong_paddle_sound = SoundLoader.load('data/hit_red_paddle.wav')
         self.bind(size=self.size_callback)
         self.get_high_score()
-        
+        #("*")
+##        if platform=="android":
+##            AdBuddiz.setPublisherKey("publish key"); #publisher ker
+##            Adbuddiz.setTestModeActive();  #for testing purposes
+##            Adbuddiz.cacheAds(PythonActivity.mActivity); #this will cache ads
+
+    def show_ads(self):
+        if platform=="android":
+            Adbuddiz.showAd(PythonActivity.mActivity) #show a popup
+
+    
 
     def check_sound(self, dt = None):
         self.sound.play()
 
     def open_score_popup(self):
         self.score_obj.open()
+        #("*")self.show_ads()
+        #print("catching ads...") #for testing uncomment
 
     
 
