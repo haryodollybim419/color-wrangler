@@ -17,3 +17,9 @@ python -m pip install kivy==1.11.1
 Then run:
  
  python main.py
+ 
+ ## How to Play 
+  1. welcom Screen 
+  <p align="left">
+  <img width="650" height="400" src="https://user-images.githubusercontent.com/47309090/54718306-97467000-4b30-11e9-8410-205aa249df90.png">
+</p>
