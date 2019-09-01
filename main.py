@@ -83,10 +83,6 @@ class WelcomeScreen(Screen):
         Animation.cancel_all(instance)
         anim = Animation(pos=(125, 118))
         anim.start(instance)
-        
-
-        
-
 
 
 class GameScreen(Screen):
