@@ -3,7 +3,7 @@ Color Wrangler
 
 
 
-requirements
+Requirements /Installation
 ------------
 python -m pip install --upgrade pip wheel setuptools virtualenv
 
