@@ -26,7 +26,7 @@ Then run:
 </p>
 
 ## Click on the Play Button
- - 2. Game Screen
+ - 2. # Game Screen
  <img width="400" height="400" src="https://raw.githubusercontent.com/haryodollybim419/kivy-game-2.0/master/game_images/play_game_screen.PNG">
 </p>
 
