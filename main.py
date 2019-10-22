@@ -129,7 +129,8 @@ class GameScreen(Screen):
     
 
     def play_game_sound(self):
-        Clock.schedule_interval(self.check_sound, 1.0)
+       # Clock.schedule_interval(self.check_sound, 1.0)
+       self.check_sound()
 
     def get_high_score(self):
         with open("data/score.txt", "r") as file:
