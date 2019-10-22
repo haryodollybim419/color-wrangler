@@ -17,7 +17,7 @@ Requirements /Installation
 
 Then run:
  
- - python -m main.py
+ - python main.py
  
  ## How to Play 
   - # Welcome Screen 
