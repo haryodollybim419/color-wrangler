@@ -174,11 +174,11 @@ class GameScreen(Screen):
         
         #self.My_Clock.unschedule(self.Update)
         if 567 <= touch.pos[0] <= 593  and 545 <= touch.pos[1] <= 588:
-            app = App.get_running_app()
-            app.root.current = "endscreen"
+            self.on_pause = False
+            self.switch_screen_to_end()
         if 365 <= touch.pos[0] <= 395  and 545 <= touch.pos[1] <= 588:
-            app = App.get_running_app()
-            app.root.current = "welcome"
+            self.on_pause = False
+            self.switch_screen_to_welcome()
         if touch.pos[1] < 540:
             if self.on_pause == False:
                 self.game_clock.schedule_interval(self.update, 1.0/60.0)
@@ -243,21 +243,30 @@ class GameScreen(Screen):
                 
         if 710 <= self.ball.pos[0] <= 720:
             #right
-            self.ball.velocity = [-6, 0]
+            self.ball.velocity = [-8, 0]
             
         elif 40 <= self.ball.pos[0] <= 50:
             
             #left
-            self.ball.velocity = [6, 0]
+            self.ball.velocity = [8, 0]
             
         elif 500<= self.ball.pos[1] <= 510:
             #up
-            self.ball.velocity = [0, -5]
+            self.ball.velocity = [0, -7]
             
         elif 30<= self.ball.pos[1] <= 40:
             #down
-            self.ball.velocity = [0, 5]
+            self.ball.velocity = [0, 7]
 
+    def switch_screen_to_welcome(self, *args):
+        app = App.get_running_app()
+        app.root.current_screen.game_clock.unschedule(app.root.current_screen.update)
+        app.root.current = "welcome"
+
+    def switch_screen_to_end(self, *args):
+        app = App.get_running_app()
+        app.root.current_screen.game_clock.unschedule(app.root.current_screen.update)
+        app.root.current = "endscreen"
         
 class EndPoint(Widget):
     velocity_x = NumericProperty(0)
@@ -326,6 +335,8 @@ class BackwardButton(ButtonBehavior, Image):
 
     def switch_screen_to_welcome(self, *args):
         app = App.get_running_app()
+        if app.root.current == "game":
+            app.root.current_screen.game_clock.unschedule(app.root.current_screen.update)
         app.root.current = "welcome"
 
     def switch_screen_to_game(self, *args):
@@ -354,6 +365,7 @@ class PlayButtonIntro(ButtonBehavior, Image):
         app.root.current_screen.end_score = 0
         app.root.current_screen.ball.change_ball_color()
         app.root.current_screen.score = 0
+        app.root.current_screen.on_pause = False
 
 class EndScreen(Screen):
     def __init__(self, **kwargs):

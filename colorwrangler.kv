@@ -7,6 +7,36 @@
                 size: 700, 500
                 pos: 45, 35
                 
+        Label:
+            text: 'Power Pack'
+            size_hint: (None, None)
+            font_size: 20
+            pos: (50, 510)
+
+        Label:
+            text: ' Gem:'
+            size_hint: (None, None)
+            font_size: 20
+            pos: (200, 510)
+
+        Image:
+            source: 'icons/gem.png'
+            size_hint: (None, None)
+            size:(35, 35)
+            pos: (280, 545)
+
+        Image:
+            source: 'icons/money.png'
+            size_hint: (None, None)
+            size: (35, 35)
+            pos: (500, 540)
+
+        Label:
+            text: '0'
+            size_hint: (None, None)
+            font_size: 20
+            pos: (510, 510)
+            
         BackwardButton:
             id:back_btn
             size_hint:(None,None)
@@ -32,16 +62,14 @@
             size_hint:(None,None)
             pos: 550, 535
             size: 60, 60
-            on_press:
-                self.switch_screen_to_game()
+            
                 
         BackwardButton:
             id:back_btn
             size_hint:(None,None)
             pos: 350, 535
             size: 60, 60
-            on_press:
-                self.switch_screen_to_game()
+            
             
         Label:
             id:score_label
