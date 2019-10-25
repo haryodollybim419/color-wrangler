@@ -36,7 +36,7 @@ import sys
 Window.size = (750, 600)
 
 
-COLORS = [[0.85, 0, 0], [0.478754546, 0.256789, 1], [0.257890, 1, 0.6078127654], [0.5678, 0.455657, 0.233546], [153/255, 0, 76/255]]
+COLORS = [[0.85, 0, 0], [128/256, 128,256, 128/256], [255/256, 204/256, 204/256], [0.478754546, 0.256789, 1], [0.257890, 1, 0.6078127654], [0.5678, 0.455657, 0.233546], [153/255, 0, 76/255]]
         
         
 class Color(Widget):
@@ -106,6 +106,8 @@ class GameScreen(Screen):
         self.hit_wrong_paddle_sound = SoundLoader.load('data/hit_red_paddle.wav')
         self.bind(size=self.size_callback)
         self.get_high_score()
+        self.change_ball_once = 0
+        self.game_clock = Clock
         #("*")
 ##        if platform=="android":
 ##            AdBuddiz.setPublisherKey("publish key"); #publisher ker
@@ -119,6 +121,7 @@ class GameScreen(Screen):
     
 
     def check_sound(self, dt = None):
+        self.sound.loop = True
         self.sound.play()
 
     def open_score_popup(self):
@@ -129,8 +132,9 @@ class GameScreen(Screen):
     
 
     def play_game_sound(self):
-       # Clock.schedule_interval(self.check_sound, 1.0)
-       self.check_sound()
+        #Clock.schedule_interval(self.check_sound, 1.0)
+        self.check_sound()
+       
 
     def get_high_score(self):
         with open("data/score.txt", "r") as file:
@@ -167,18 +171,23 @@ class GameScreen(Screen):
         #right 715
         #left 45
         #top 505
+        
+        #self.My_Clock.unschedule(self.Update)
+        if 567 <= touch.pos[0] <= 593  and 545 <= touch.pos[1] <= 588:
+            app = App.get_running_app()
+            app.root.current = "endscreen"
         if 365 <= touch.pos[0] <= 395  and 545 <= touch.pos[1] <= 588:
             app = App.get_running_app()
             app.root.current = "welcome"
         if touch.pos[1] < 540:
             if self.on_pause == False:
-                Clock.schedule_interval(self.update, 1.0/60.0)
+                self.game_clock.schedule_interval(self.update, 1.0/60.0)
             self.ball.ball_pos.append(self.pos[:])
             if self.ball.pos[0] <= self.ball.ball_pos[0][0] + 650:
                 if self.ball.pos[1] <= self.ball.ball_pos[0][1] + 10:
-                    self.ball.velocity = [2, 8]
+                    self.ball.velocity = [5, 11]
                 else:
-                    self.ball.velocity = [2, -8]
+                    self.ball.velocity = [5, -11]
             else:
                 self.ball.move_back_state = True
                 self.ball.velocity = [-4, 0]
@@ -219,6 +228,10 @@ class GameScreen(Screen):
                         if len(self.score_data) > 0:
                            self.end_score =  max(self.end_score, self.score_data[-1])
                            self.score_obj.score = self.end_score
+                           if  self.change_ball_once == 0:
+                               self.change_ball_once += 1
+                               #self.ball.change_ball_color()
+                               
                         
         if self.high_score < self.end_score:
             self.write_high_score(self.end_score)
@@ -230,20 +243,20 @@ class GameScreen(Screen):
                 
         if 710 <= self.ball.pos[0] <= 720:
             #right
-            self.ball.velocity = [-5.0, 0]
+            self.ball.velocity = [-6, 0]
             
         elif 40 <= self.ball.pos[0] <= 50:
             
             #left
-            self.ball.velocity = [5.0, 0]
+            self.ball.velocity = [6, 0]
             
         elif 500<= self.ball.pos[1] <= 510:
             #up
-            self.ball.velocity = [0, -4]
+            self.ball.velocity = [0, -5]
             
         elif 30<= self.ball.pos[1] <= 40:
             #down
-            self.ball.velocity = [0, 4]
+            self.ball.velocity = [0, 5]
 
         
 class EndPoint(Widget):
@@ -301,10 +314,10 @@ class Ball(Widget):
         self.hit_color = random.choice(COLORS[1:])
        
         
-##class FowardButton(ButtonBehavior, Image):
-##    def __init__(self, **kwargs):
-##        super(FowardButton, self).__init__(**kwargs)
-##        self.source = 'icons/forward-icon.png'
+class FowardButton(ButtonBehavior, Image):
+    def __init__(self, **kwargs):
+        super(FowardButton, self).__init__(**kwargs)
+        self.source = 'icons/forward-icon.png'
 
 class BackwardButton(ButtonBehavior, Image):
     def __init__(self, **kwargs):
@@ -314,6 +327,10 @@ class BackwardButton(ButtonBehavior, Image):
     def switch_screen_to_welcome(self, *args):
         app = App.get_running_app()
         app.root.current = "welcome"
+
+    def switch_screen_to_game(self, *args):
+        app = App.get_running_app()
+        app.root.current = "game"
 
 
 class PlayButtonIntro(ButtonBehavior, Image):
@@ -337,15 +354,29 @@ class PlayButtonIntro(ButtonBehavior, Image):
         app.root.current_screen.end_score = 0
         app.root.current_screen.ball.change_ball_color()
         app.root.current_screen.score = 0
+
+class EndScreen(Screen):
+    def __init__(self, **kwargs):
+        super(EndScreen, self).__init__(**kwargs)
+
+    def switch_screen_to_game(self, *args):
+        app = App.get_running_app()
+        app.root.current = "game"
+        app.root.current_screen.play_game_sound()
+        app.root.current_screen.score_obj.is_open = False
+        app.root.current_screen.score_data = []
+        app.root.current_screen.score_obj.score = 0
+        app.root.current_screen.end_score = 0
+        app.root.current_screen.ball.change_ball_color()
+        app.root.current_screen.score = 0
         
-
-
-class ColorWranglerApp(App):
     
+class ColorWranglerApp(App):
     def build(self):
         self.icon = 'icons/paintball.png'
         game = GameScreen(name="game")
         sm.add_widget(WelcomeScreen(name="welcome"))
+        sm.add_widget(EndScreen(name="endscreen"))
         sm.add_widget(game)
         return sm
 

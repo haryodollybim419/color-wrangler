@@ -1,3 +1,20 @@
+<EndSCreen>:
+    FloatLayout:
+        canvas:
+            Color:
+                rgb:(46/255, 49/255, 49/255)
+            Rectangle:
+                size: 700, 500
+                pos: 45, 35
+                
+        BackwardButton:
+            id:back_btn
+            size_hint:(None,None)
+            pos: 350, 535
+            size: 60, 60
+            on_press:
+                self.switch_screen_to_game()
+                
 <GameScreen>:
     id:game
     ball: game_ball
@@ -10,13 +27,13 @@
                 size: 700, 500
                 pos: 45, 35
                 
-##        FowardButton:
-##            id:fwd_btn
-##            size_hint:(None,None)
-##            pos: 550, 535
-##            size: 60, 60
-##            on_press:
-##                self.switch_screen_to_game()
+        FowardButton:
+            id:fwd_btn
+            size_hint:(None,None)
+            pos: 550, 535
+            size: 60, 60
+            on_press:
+                self.switch_screen_to_game()
                 
         BackwardButton:
             id:back_btn
@@ -163,8 +180,8 @@
                 self.switch_screen_to_welcome()
     
     
-##<FowardButton>:
-##    pos:self.pos
+<FowardButton>:
+    pos:self.pos
     
 <BackwardButton>:
     pos:self.pos
