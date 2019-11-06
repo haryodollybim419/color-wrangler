@@ -1,0 +1,8 @@
+icons\gems\gem.png
+icons\gems\gems.png
+icons\gems\ruby.png
+icons\gems\emerald.png
+icons\gems\gold-ingots.png
+icons\gems\green_diamond.png
+icons\gems\diamond.png
+icons\gems\crown.png
