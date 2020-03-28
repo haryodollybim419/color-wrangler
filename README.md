@@ -1,4 +1,4 @@
-# kivy-game-2.0
+# Color Wrangler(kivy-game)
 Color Wrangler
 
 
